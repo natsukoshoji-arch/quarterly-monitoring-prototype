@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>四半期モニタリング編集ダイアログ 改修案サマリー</title>
+<style>
+  :root {
+    --primary: #1aa97a;
+    --primary-dark: #149068;
+    --primary-soft: #f0faf6;
+    --text: #1f2937;
+    --text-sub: #4b5563;
+    --text-muted: #6b7280;
+    --border: #e5e7eb;
+    --bg: #f5f6f7;
+    --gold: #d4a017;
+    --silver: #6b7280;
+    --bronze: #a16207;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .page {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 32px 24px 64px;
+  }
+
+  /* ヘッダー */
+  .doc-header {
+    border-bottom: 2px solid var(--primary);
+    padding-bottom: 16px;
+    margin-bottom: 24px;
+  }
+  .doc-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin: 0 0 6px;
+  }
+  .doc-subtitle {
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  /* セクション */
+  .section { margin-top: 32px; }
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0 0 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-title::before {
+    content: '';
+    display: inline-block;
+    width: 4px; height: 18px;
+    background: var(--primary);
+    border-radius: 2px;
+  }
+
+  /* 要約ボックス */
+  .summary-box {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px 20px;
+  }
+  .summary-box p { margin: 0 0 8px; }
+  .summary-box p:last-child { margin-bottom: 0; }
+  .summary-box ul { margin: 6px 0 0; padding-left: 20px; }
+  .summary-box li { margin-bottom: 4px; }
+  .summary-box li:last-child { margin-bottom: 0; }
+
+  /* 比較表 */
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    font-size: 13px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .compare-table th, .compare-table td {
+    padding: 10px 8px;
+    border-bottom: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    text-align: center;
+    vertical-align: middle;
+  }
+  .compare-table th:last-child, .compare-table td:last-child { border-right: none; }
+  .compare-table tbody tr:last-child td { border-bottom: none; }
+  .compare-table thead th {
+    background: var(--primary-soft);
+    color: var(--primary-dark);
+    font-weight: 700;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+  .compare-table tbody th {
+    background: #fafbfc;
+    text-align: left;
+    font-weight: 600;
+    color: var(--text-sub);
+    white-space: nowrap;
+    font-size: 12px;
+  }
+  .mark-good { color: var(--primary-dark); font-weight: 700; font-size: 15px; }
+  .mark-mid  { color: #6b7280; font-weight: 700; font-size: 15px; }
+  .mark-bad  { color: #c33; font-weight: 700; font-size: 15px; }
+
+  .col-recommended {
+    background: #fffdf3 !important;
+    position: relative;
+  }
+  .col-recommended-th {
+    background: #fef9c3 !important;
+    color: #854d0e !important;
+    position: relative;
+  }
+  .col-recommended-th::after {
+    content: '推奨';
+    display: block;
+    font-size: 10px;
+    background: var(--gold);
+    color: #fff;
+    border-radius: 3px;
+    padding: 1px 4px;
+    margin-top: 2px;
+  }
+
+  /* 案カード */
+  .cards {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+    margin-top: 4px;
+  }
+  .card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 18px;
+    display: grid;
+    grid-template-columns: 60px 1fr auto;
+    gap: 16px;
+    align-items: center;
+  }
+  .card.rank-1 { border-left: 4px solid var(--gold); }
+  .card.rank-2 { border-left: 4px solid var(--silver); }
+  .card.rank-3 { border-left: 4px solid var(--bronze); }
+
+  .rank {
+    font-size: 24px;
+    font-weight: 800;
+    text-align: center;
+    line-height: 1;
+  }
+  .rank-1 .rank { color: var(--gold); }
+  .rank-2 .rank { color: var(--silver); }
+  .rank-3 .rank { color: var(--bronze); }
+  .rank-label {
+    display: block;
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    letter-spacing: 0.05em;
+  }
+
+  .card-body h3 {
+    margin: 0 0 4px;
+    font-size: 15px;
+    font-weight: 700;
+  }
+  .card-body p {
+    margin: 0;
+    font-size: 13px;
+    color: var(--text-sub);
+    line-height: 1.5;
+  }
+
+  .card-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 36px;
+    padding: 0 16px;
+    border-radius: 6px;
+    background: var(--primary);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.15s;
+    white-space: nowrap;
+  }
+  .card-btn:hover { background: var(--primary-dark); }
+
+  /* 推奨ボックス */
+  .recommend-box {
+    background: linear-gradient(135deg, #f0faf6 0%, #e7f6ef 100%);
+    border: 1px solid #b8e0cc;
+    border-radius: 8px;
+    padding: 18px 20px;
+    margin-top: 12px;
+  }
+  .recommend-box h4 {
+    margin: 0 0 8px;
+    font-size: 14px;
+    color: var(--primary-dark);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .recommend-box p {
+    margin: 0;
+    font-size: 13px;
+    color: var(--text-sub);
+  }
+
+  /* 検討メモ */
+  .notes {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    font-size: 13px;
+  }
+  .notes ul { margin: 0; padding-left: 18px; }
+  .notes li { margin-bottom: 6px; color: var(--text-sub); }
+  .notes li:last-child { margin-bottom: 0; }
+  .notes strong { color: var(--text); }
+
+  @media (max-width: 600px) {
+    .card { grid-template-columns: 50px 1fr; }
+    .card-btn { grid-column: 1 / -1; justify-content: center; }
+    .compare-table { font-size: 11px; }
+    .compare-table th, .compare-table td { padding: 6px 4px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ヘッダー -->
+  <header class="doc-header">
+    <h1 class="doc-title">四半期モニタリング編集ダイアログ 改修案サマリー</h1>
+    <div class="doc-subtitle">3つのUIパターンを試作・比較しました</div>
+  </header>
+
+  <!-- 背景・要件 -->
+  <section class="section">
+    <h2 class="section-title">背景と要件</h2>
+    <div class="summary-box">
+      <p><strong>改修内容:</strong> 既存ダイアログを「{年}の編集」とし、4つの財務項目それぞれに4四半期分の目標／実績を入力できるようにする。</p>
+      <ul>
+        <li>項目: 売上高 / 売上総利益 / 営業利益 / 計上利益</li>
+        <li>各項目あたり 4四半期 × 目標・実績 = 8入力 → <strong>合計32入力欄</strong></li>
+        <li>入力タイミングは特定できない(一括入力・追記入力どちらもあり得る)</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 試作した3案 -->
+  <section class="section">
+    <h2 class="section-title">試作した3案</h2>
+    <div class="cards">
+
+      <div class="card rank-1">
+        <div class="rank">1<span class="rank-label">RANK</span></div>
+        <div class="card-body">
+          <h3>マトリクス表</h3>
+          <p>行=項目 × 列=四半期の表形式。32セル全てが常に視界に入り、未入力箇所が一目で分かる。年間達成率を自動表示。</p>
+        </div>
+        <a class="card-btn" href="dialog_matrix.html" target="_blank">プロトタイプを開く →</a>
+      </div>
+
+      <div class="card rank-2">
+        <div class="rank">2<span class="rank-label">RANK</span></div>
+        <div class="card-body">
+          <h3>アコーディオン</h3>
+          <p>項目ごとに折りたためる縦並び。開いた項目は元デザインのゆったり感を維持。ヘッダーに達成率バッジ。</p>
+        </div>
+        <a class="card-btn" href="quarterly_monitoring_edit_dialog_v2.html" target="_blank">プロトタイプを開く →</a>
+      </div>
+
+      <div class="card rank-3">
+        <div class="rank">3<span class="rank-label">RANK</span></div>
+        <div class="card-body">
+          <h3>タブ切替</h3>
+          <p>項目をタブで切替。1項目に集中して入力できる。タブに入力進捗バッジを表示。</p>
+        </div>
+        <a class="card-btn" href="dialog_tab.html" target="_blank">プロトタイプを開く →</a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 比較表 -->
+  <section class="section">
+    <h2 class="section-title">比較表</h2>
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th style="text-align:left;">評価軸</th>
+          <th class="col-recommended-th">マトリクス表</th>
+          <th>アコーディオン</th>
+          <th>タブ</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th>一覧性(全体把握)</th>
+          <td class="col-recommended"><span class="mark-good">◎</span></td>
+          <td><span class="mark-mid">○</span></td>
+          <td><span class="mark-bad">△</span></td>
+        </tr>
+        <tr>
+          <th>未入力の気づきやすさ</th>
+          <td class="col-recommended"><span class="mark-good">◎</span></td>
+          <td><span class="mark-mid">○</span></td>
+          <td><span class="mark-mid">○</span><br><span style="font-size:10px;color:#9ca3af;">バッジ依存</span></td>
+        </tr>
+        <tr>
+          <th>入力集中(1項目に没頭)</th>
+          <td><span class="mark-bad">△</span></td>
+          <td><span class="mark-mid">○</span></td>
+          <td class="col-recommended"><span class="mark-good">◎</span></td>
+        </tr>
+        <tr>
+          <th>項目間の比較</th>
+          <td class="col-recommended"><span class="mark-good">◎</span></td>
+          <td><span class="mark-bad">△</span></td>
+          <td><span class="mark-bad">×</span></td>
+        </tr>
+        <tr>
+          <th>元デザインの再現度</th>
+          <td><span class="mark-bad">△</span></td>
+          <td class="col-recommended"><span class="mark-good">◎</span></td>
+          <td><span class="mark-good">◎</span></td>
+        </tr>
+        <tr>
+          <th>ダイアログ幅</th>
+          <td class="col-recommended">1100px</td>
+          <td>720px</td>
+          <td>720px</td>
+        </tr>
+        <tr>
+          <th>実装コスト</th>
+          <td class="col-recommended"><span class="mark-mid">○</span></td>
+          <td><span class="mark-good">◎</span></td>
+          <td><span class="mark-good">◎</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 推奨 -->
+  <section class="section">
+    <h2 class="section-title">推奨案と理由</h2>
+    <div class="recommend-box">
+      <h4>🏆 マトリクス表 を推奨</h4>
+      <p>
+        「<strong>入力タイミングが特定できない</strong>」という要件に対し、開閉や切替の操作なしで全データを俯瞰できる点が決定打。年度始めの一括入力・四半期ごとの追記入力のいずれにも対応でき、未入力箇所への気づきやすさも最も高い。
+        入力欄が小さくなる点と既存デザインから外れる点は許容できる範囲と判断。
+      </p>
+    </div>
+  </section>
+
+  <!-- 検討メモ -->
+  <section class="section">
+    <h2 class="section-title">検討メモ・ご相談したい点</h2>
+    <div class="notes">
+      <ul>
+        <li><strong>触り比べのご依頼:</strong> 3案ともプロトタイプで実際に入力操作を試せます。可能であれば実利用者(現場担当者)にも触ってもらえると判断材料が増えます。</li>
+        <li><strong>2位アコーディオンの位置づけ:</strong> 入力欄サイズや既存デザインとの統一感を優先する場合の安全な代替案。</li>
+        <li><strong>マトリクスの懸念点:</strong> モバイル/狭い画面での操作性。横スクロール許容か、別レイアウトに切替えるかを検討する余地あり。</li>
+        <li><strong>共通の未確定事項:</strong> 「対象年」「事業所」など基本情報の編集要否、保存後の遷移先、バリデーション要件はまだ仮置きです。</li>
+      </ul>
+    </div>
+  </section>
+
+</div>
+</body>
+</html>

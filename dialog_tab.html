@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>{年}の編集 - タブ案</title>
+<style>
+  :root {
+    --qm-primary: #1aa97a;
+    --qm-primary-dark: #149068;
+    --qm-text: #1f2937;
+    --qm-text-sub: #4b5563;
+    --qm-border: #d1d5db;
+    --qm-border-light: #e5e7eb;
+    --qm-bg: #f5f6f7;
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--qm-bg);
+    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
+    color: var(--qm-text);
+    font-size: 14px;
+  }
+
+  .qm-page {
+    min-height: 100vh;
+    padding: 40px 20px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+  }
+
+  /* ---- ダイアログ ---- */
+  .qm-dialog {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.10);
+    width: 100%;
+    max-width: 720px;
+    overflow: hidden;
+  }
+
+  /* ---- ヘッダー ---- */
+  .qm-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 28px;
+    border-bottom: 1px solid var(--qm-border-light);
+  }
+  .qm-title { font-size: 18px; font-weight: 700; margin: 0; }
+  .qm-close {
+    background: transparent; border: none; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 14px; color: var(--qm-text-sub);
+    padding: 6px 10px; border-radius: 6px;
+    font-family: inherit; transition: background 0.15s;
+  }
+  .qm-close:hover { background: #f3f4f6; }
+
+  /* ---- タブ ---- */
+  .qm-tabs {
+    display: flex;
+    gap: 2px;
+    padding: 0 28px;
+    border-bottom: 1px solid var(--qm-border-light);
+    background: #fafbfc;
+    overflow-x: auto;
+  }
+  .qm-tab {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 14px 18px 12px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--qm-text-sub);
+    border-bottom: 3px solid transparent;
+    margin-bottom: -1px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+    font-family: inherit;
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
+  }
+  .qm-tab:hover { color: var(--qm-text); }
+  .qm-tab.is-active {
+    color: var(--qm-primary);
+    border-bottom-color: var(--qm-primary);
+    background: #fff;
+  }
+  .qm-tab-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 6px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    background: #e5e7eb;
+    color: #6b7280;
+    line-height: 1;
+  }
+  .qm-tab-badge.ok { background: #d1f0e2; color: var(--qm-primary-dark); }
+  .qm-tab-badge.partial { background: #fef3c7; color: #92400e; }
+
+  /* ---- 本文 ---- */
+  .qm-body {
+    padding: 18px 28px 22px;
+    max-height: 65vh;
+    overflow-y: auto;
+  }
+
+  /* ---- 四半期見出し ---- */
+  .qm-quarter { margin-top: 20px; }
+  .qm-quarter:first-child { margin-top: 4px; }
+  .qm-quarter-title {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 14px; font-weight: 700;
+    color: var(--qm-text);
+    margin: 0 0 10px;
+  }
+  .qm-quarter-bar {
+    width: 4px; height: 16px;
+    background: var(--qm-primary); border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  /* ---- 入力 ---- */
+  .qm-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .qm-field-label {
+    display: block;
+    font-size: 13px; font-weight: 600;
+    color: var(--qm-text);
+    margin-bottom: 6px;
+  }
+  .qm-input {
+    width: 100%;
+    height: 42px;
+    border-radius: 6px;
+    border: 1px solid var(--qm-border);
+    background: #fff;
+    padding: 0 14px;
+    font-size: 14px;
+    color: var(--qm-text);
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    font-family: inherit;
+    font-variant-numeric: tabular-nums;
+  }
+  .qm-input::placeholder { color: #c2c7cd; }
+  .qm-input:focus {
+    border-color: var(--qm-primary);
+    box-shadow: 0 0 0 3px rgba(26,169,122,0.12);
+  }
+
+  /* ---- フッター ---- */
+  .qm-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 28px;
+    border-top: 1px solid var(--qm-border-light);
+    background: #fff;
+  }
+  .qm-footer-nav {
+    display: flex; gap: 8px;
+  }
+  .qm-footer-actions {
+    display: flex; gap: 10px;
+  }
+  .qm-btn {
+    height: 40px;
+    padding: 0 22px;
+    border-radius: 6px;
+    font-size: 14px; font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.06s, background 0.15s;
+    border: 1px solid transparent;
+    font-family: inherit;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .qm-btn:active { transform: translateY(1px); }
+  .qm-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .qm-btn-cancel {
+    background: #fff; color: var(--qm-text);
+    border-color: var(--qm-border);
+  }
+  .qm-btn-cancel:hover:not(:disabled) { background: #f9fafb; }
+  .qm-btn-save {
+    background: var(--qm-primary); color: #fff;
+  }
+  .qm-btn-save:hover:not(:disabled) { background: var(--qm-primary-dark); }
+  .qm-btn-nav {
+    background: #fff; color: var(--qm-text-sub);
+    border-color: var(--qm-border);
+    padding: 0 14px;
+  }
+  .qm-btn-nav:hover:not(:disabled) { background: #f9fafb; color: var(--qm-text); }
+
+  @media (max-width: 600px) {
+    .qm-header, .qm-body, .qm-footer { padding-left: 16px; padding-right: 16px; }
+    .qm-tabs { padding-left: 16px; padding-right: 16px; }
+    .qm-fields { grid-template-columns: 1fr; gap: 10px; }
+    .qm-tab { padding: 12px 14px 10px; font-size: 13px; }
+    .qm-footer { flex-direction: column; align-items: stretch; }
+    .qm-footer-nav, .qm-footer-actions { justify-content: space-between; }
+  }
+</style>
+</head>
+<body>
+<div class="qm-page">
+  <div class="qm-dialog" role="dialog" aria-labelledby="qm-title-text">
+
+    <!-- ヘッダー -->
+    <div class="qm-header">
+      <h2 class="qm-title" id="qm-title-text">2026年の編集</h2>
+      <button class="qm-close" type="button" aria-label="閉じる">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+          <path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+        閉じる
+      </button>
+    </div>
+
+    <!-- タブ -->
+    <div class="qm-tabs" role="tablist" id="qm-tabs"><!-- JSで生成 --></div>
+
+    <!-- 本文 -->
+    <div class="qm-body" id="qm-body"><!-- JSで生成 --></div>
+
+    <!-- フッター -->
+    <div class="qm-footer">
+      <div class="qm-footer-nav">
+        <button class="qm-btn qm-btn-nav" type="button" id="qm-prev">
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          前の項目
+        </button>
+        <button class="qm-btn qm-btn-nav" type="button" id="qm-next">
+          次の項目
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+      <div class="qm-footer-actions">
+        <button class="qm-btn qm-btn-cancel" type="button">キャンセル</button>
+        <button class="qm-btn qm-btn-save" type="button" id="qm-save">登録する</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var items = [
+    { key: 'sales',        label: '売上高' },
+    { key: 'gross_profit', label: '売上総利益' },
+    { key: 'op_profit',    label: '営業利益' },
+    { key: 'net_profit',   label: '計上利益' }
+  ];
+  var quarters = [
+    { key: 'q1', label: '第一四半期' },
+    { key: 'q2', label: '第二四半期' },
+    { key: 'q3', label: '第三四半期' },
+    { key: 'q4', label: '第四四半期' }
+  ];
+
+  function formatNum(v) {
+    var n = parseInt(String(v).replace(/[^\d-]/g, ''), 10);
+    return isNaN(n) ? '' : n.toLocaleString('ja-JP');
+  }
+
+  // タブ生成
+  var tabsEl = document.getElementById('qm-tabs');
+  items.forEach(function(it, idx){
+    var btn = document.createElement('button');
+    btn.className = 'qm-tab' + (idx === 0 ? ' is-active' : '');
+    btn.type = 'button';
+    btn.dataset.item = it.key;
+    btn.setAttribute('role', 'tab');
+    btn.innerHTML = it.label + ' <span class="qm-tab-badge" data-badge>0/8</span>';
+    btn.addEventListener('click', function(){ activateTab(it.key); });
+    tabsEl.appendChild(btn);
+  });
+
+  // パネル生成（全項目分作って表示切替）
+  var bodyEl = document.getElementById('qm-body');
+  items.forEach(function(it, idx){
+    var panel = document.createElement('div');
+    panel.className = 'qm-panel';
+    panel.dataset.item = it.key;
+    panel.style.display = idx === 0 ? 'block' : 'none';
+    var html = '';
+    quarters.forEach(function(q){
+      html += '' +
+        '<div class="qm-quarter">' +
+          '<h4 class="qm-quarter-title"><span class="qm-quarter-bar"></span>' + q.label + '</h4>' +
+          '<div class="qm-fields">' +
+            '<div>' +
+              '<label class="qm-field-label" for="qm-' + it.key + '-' + q.key + '-target">目標(千円)</label>' +
+              '<input id="qm-' + it.key + '-' + q.key + '-target" class="qm-input" type="text" inputmode="numeric" placeholder="目標を入力" data-item="' + it.key + '" data-q="' + q.key + '" data-kind="target">' +
+            '</div>' +
+            '<div>' +
+              '<label class="qm-field-label" for="qm-' + it.key + '-' + q.key + '-actual">実績(千円)</label>' +
+              '<input id="qm-' + it.key + '-' + q.key + '-actual" class="qm-input" type="text" inputmode="numeric" placeholder="実績を入力" data-item="' + it.key + '" data-q="' + q.key + '" data-kind="actual">' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+    });
+    panel.innerHTML = html;
+    bodyEl.appendChild(panel);
+  });
+
+  function activateTab(key) {
+    tabsEl.querySelectorAll('.qm-tab').forEach(function(t){
+      t.classList.toggle('is-active', t.dataset.item === key);
+    });
+    bodyEl.querySelectorAll('.qm-panel').forEach(function(p){
+      p.style.display = p.dataset.item === key ? 'block' : 'none';
+    });
+    updateNavButtons();
+  }
+
+  // 入力整形 + バッジ更新
+  function updateBadge(itemKey) {
+    var inputs = bodyEl.querySelectorAll('.qm-panel[data-item="' + itemKey + '"] input.qm-input');
+    var filled = 0;
+    inputs.forEach(function(el){ if (el.value.trim() !== '') filled++; });
+    var badge = tabsEl.querySelector('.qm-tab[data-item="' + itemKey + '"] [data-badge]');
+    if (!badge) return;
+    badge.textContent = filled + '/' + inputs.length;
+    badge.className = 'qm-tab-badge';
+    if (filled === inputs.length) badge.classList.add('ok');
+    else if (filled > 0) badge.classList.add('partial');
+  }
+  items.forEach(function(it){ updateBadge(it.key); });
+
+  bodyEl.addEventListener('input', function(e){
+    var el = e.target;
+    if (!el.classList.contains('qm-input')) return;
+    var caret = el.selectionStart;
+    var before = el.value;
+    var digitsOnly = before.replace(/[^\d-]/g, '');
+    var formatted = digitsOnly === '' ? '' : formatNum(digitsOnly);
+    if (before !== formatted) {
+      el.value = formatted;
+      try {
+        var diff = formatted.length - before.length;
+        el.setSelectionRange(Math.max(0, caret + diff), Math.max(0, caret + diff));
+      } catch(e){}
+    }
+    updateBadge(el.dataset.item);
+  });
+
+  // ナビボタン
+  function currentIndex() {
+    var active = tabsEl.querySelector('.qm-tab.is-active');
+    return items.findIndex(function(it){ return it.key === active.dataset.item; });
+  }
+  function updateNavButtons() {
+    var i = currentIndex();
+    document.getElementById('qm-prev').disabled = (i <= 0);
+    document.getElementById('qm-next').disabled = (i >= items.length - 1);
+  }
+  document.getElementById('qm-prev').addEventListener('click', function(){
+    var i = currentIndex(); if (i > 0) activateTab(items[i-1].key);
+  });
+  document.getElementById('qm-next').addEventListener('click', function(){
+    var i = currentIndex(); if (i < items.length - 1) activateTab(items[i+1].key);
+  });
+  updateNavButtons();
+
+  // 保存
+  document.getElementById('qm-save').addEventListener('click', function(){
+    var data = {};
+    bodyEl.querySelectorAll('input.qm-input').forEach(function(el){
+      data[el.dataset.item + '_' + el.dataset.q + '_' + el.dataset.kind] = el.value.replace(/,/g, '');
+    });
+    console.log('登録データ:', data);
+    var self = this; var orig = self.textContent;
+    self.textContent = '登録しました';
+    setTimeout(function(){ self.textContent = orig; }, 1400);
+  });
+})();
+</script>
+</body>
+</html>
