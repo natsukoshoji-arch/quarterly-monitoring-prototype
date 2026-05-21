@@ -393,6 +393,19 @@
     });
   });
 
+  // ---- サンプルデータ（デモ用） ----
+  var sampleData = {
+    sales:        { q1: { target: 100000, actual: 95000  }, q2: { target: 110000, actual: 120000 }, q3: { target: 120000, actual: 105000 }, q4: { target: 130000, actual: '' } },
+    gross_profit: { q1: { target: 40000,  actual: 38000  }, q2: { target: 44000,  actual: 48000  }, q3: { target: 48000,  actual: 42000  }, q4: { target: 52000,  actual: '' } },
+    op_profit:    { q1: { target: 15000,  actual: 12000  }, q2: { target: 18000,  actual: 20000  }, q3: { target: 20000,  actual: 16000  }, q4: { target: 22000,  actual: '' } },
+    net_profit:   { q1: { target: 10000,  actual: 8500   }, q2: { target: 12000,  actual: 13500  }, q3: { target: 13000,  actual: 11000  }, q4: { target: 15000,  actual: '' } }
+  };
+  body.querySelectorAll('input.qm-input').forEach(function(el){
+    var v = sampleData[el.dataset.item] && sampleData[el.dataset.item][el.dataset.q] && sampleData[el.dataset.item][el.dataset.q][el.dataset.kind];
+    if (v !== undefined && v !== '') el.value = formatNum(v);
+  });
+  items.forEach(function(it){ updateSummary(it.key); });
+
   // 保存ボタン
   document.getElementById('qm-save').addEventListener('click', function(){
     var data = { quarters: {} };
